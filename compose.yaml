@@ -1,0 +1,24 @@
+services:
+  jellyfin:
+   image: jellyfin/jellyfin:10.11.11
+   container_name: jellyfin
+   network_mode: "host"
+   # Optional - specify the uid and gid you would like Jellyfin to use instead of root
+   user: 568:568
+   # ports:
+   #  - 8096:8096/tcp
+   #  - 7359:7359/udp
+   volumes:
+     #- /mnt/media/jellyfin/config:/config
+     - /opt/jellyfin/config/config:/config
+     - /var/cache/jellyfin:/cache
+     # - /mnt/media/jellyfin/cache:/cache            
+     # - /opt/jellyfin/cache:/cache
+     #- /mnt/media/guide:/media/guide
+     - type: bind
+       source: /mnt/media/media
+       target: /media/media
+   restart: 'unless-stopped'
+       # Optional - alternative address used for autodiscovery
+       # extra_hosts:
+       #  - 'host.docker.internal:host-gateway'
