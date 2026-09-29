@@ -1,24 +1,43 @@
+
 services:
   jellyfin:
-   image: jellyfin/jellyfin:10.11.11
-   container_name: jellyfin
-   network_mode: "host"
-   # Optional - specify the uid and gid you would like Jellyfin to use instead of root
-   user: 568:568
-   # ports:
-   #  - 8096:8096/tcp
-   #  - 7359:7359/udp
-   volumes:
-     #- /mnt/media/jellyfin/config:/config
-     - /opt/jellyfin/config/config:/config
-     - /var/cache/jellyfin:/cache
-     # - /mnt/media/jellyfin/cache:/cache            
-     # - /opt/jellyfin/cache:/cache
-     #- /mnt/media/guide:/media/guide
-     - type: bind
-       source: /mnt/media/media
-       target: /media/media
-   restart: 'unless-stopped'
-       # Optional - alternative address used for autodiscovery
-       # extra_hosts:
-       #  - 'host.docker.internal:host-gateway'
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    network_mode: "host"
+    # Optional - specify the uid and gid you would like Jellyfin to use instead of root
+    user: 568:568
+    # ports:
+    #  - 8096:8096/tcp
+    #  - 7359:7359/udp
+    volumes:
+      - /etc/hostname:/etc/host_hostname:ro
+      # - /opt/jellyfin/config:/config
+      - /opt/jellyfin/config/config:/config  
+      - /var/cache/jellyfin:/cache        
+#      - /opt/jellyfin/cache:/cache
+      - type: bind
+        source: /mnt/media/media
+        target: /media/media
+    restart: 'unless-stopped'             
+    post_start:
+      - command: 
+          - "/bin/sh"
+          - "-c"
+          - >
+            curl 
+            -H "Title: Jellyfin Server" 
+            -H "Tags: clapper,green_circle"
+            -H "Priority: 3" 
+            -d "The container has started on host: $$(cat /etc/host_hostname)" 
+            ntfy.sh/Ef6rPMdCFIslIHNF 
+    pre_stop:
+      - command: 
+          - "/bin/sh"
+          - "-c"
+          - >
+            curl 
+            -H "Title: Jellyfin Server" 
+            -H "Tags: clapper,stop_sign"
+            -H "Priority: high" 
+            -d "The container has stoped on host: $$(cat /etc/host_hostname)" 
+            ntfy.sh/Ef6rPMdCFIslIHNF   
